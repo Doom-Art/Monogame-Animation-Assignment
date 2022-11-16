@@ -8,6 +8,11 @@ namespace Monogame_Animation_Assignment
     {
         private GraphicsDeviceManager _graphics;
         private SpriteBatch _spriteBatch;
+        private Texture2D tribbleGreyTexture;
+        private Rectangle tribbleGreyRect;
+        private Texture2D tribbleOrangeTexture;
+        private Vector2 tribbleGreySpeed;
+
 
         public Game1()
         {
@@ -18,15 +23,20 @@ namespace Monogame_Animation_Assignment
 
         protected override void Initialize()
         {
+            tribbleGreyRect = new Rectangle(300, 10, 100, 100);
+            tribbleGreySpeed = new Vector2(2, 0);
             // TODO: Add your initialization logic here
-
+            this.Window.Title = "Tribble";
+            _graphics.PreferredBackBufferWidth = (800);
+            _graphics.PreferredBackBufferHeight = 600;
+            _graphics.ApplyChanges();
             base.Initialize();
         }
 
         protected override void LoadContent()
         {
             _spriteBatch = new SpriteBatch(GraphicsDevice);
-
+            tribbleGreyTexture = Content.Load<Texture2D>("tribbleGrey");
             // TODO: use this.Content to load your game content here
         }
 
@@ -35,6 +45,11 @@ namespace Monogame_Animation_Assignment
             if (GamePad.GetState(PlayerIndex.One).Buttons.Back == ButtonState.Pressed || Keyboard.GetState().IsKeyDown(Keys.Escape))
                 Exit();
 
+            tribbleGreyRect.X += (int)tribbleGreySpeed.X;
+            tribbleGreyRect.Y += (int)tribbleGreySpeed.Y;
+            if (tribbleGreyRect.Right >= _graphics.PreferredBackBufferWidth || tribbleGreyRect.Left <= 0){
+                tribbleGreySpeed.X = tribbleGreySpeed.X * (-1);
+            }
             // TODO: Add your update logic here
 
             base.Update(gameTime);
@@ -42,8 +57,11 @@ namespace Monogame_Animation_Assignment
 
         protected override void Draw(GameTime gameTime)
         {
-            GraphicsDevice.Clear(Color.CornflowerBlue);
+            GraphicsDevice.Clear(Color.Cyan);
 
+            _spriteBatch.Begin();
+            _spriteBatch.Draw(tribbleGreyTexture, tribbleGreyRect, Color.White);
+            _spriteBatch.End();
             // TODO: Add your drawing code here
 
             base.Draw(gameTime);
