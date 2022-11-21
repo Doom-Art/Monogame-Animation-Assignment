@@ -1,4 +1,5 @@
 ﻿using Microsoft.Xna.Framework;
+using Microsoft.Xna.Framework.Audio;
 using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Input;
 using System;
@@ -24,6 +25,7 @@ namespace Monogame_Animation_Assignment
         public static Random rand;
         private int bgNum;
         private float rotation;
+        SoundEffect tribbleCoo;
 
         public Game1()
         {
@@ -60,6 +62,7 @@ namespace Monogame_Animation_Assignment
             tribbleCreamTexture = Content.Load<Texture2D>("tribbleCream");
             tribbleOrangeTexture = Content.Load<Texture2D>("tribbleOrange");
             tribbleBrownTexture = Content.Load<Texture2D>("tribbleBrown");
+            tribbleCoo = Content.Load<SoundEffect>("tribble_coo");
             // TODO: use this.Content to load your game content here
         }
 
@@ -72,18 +75,22 @@ namespace Monogame_Animation_Assignment
             tribbleGreyRect.Y += (int)tribbleGreySpeed.Y;
             if (tribbleGreyRect.Right >= _graphics.PreferredBackBufferWidth || tribbleGreyRect.Left <= 0){
                 tribbleGreySpeed.X *= (-1);
+                
             }
             if (tribbleGreyRect.Bottom >= _graphics.PreferredBackBufferHeight || tribbleGreyRect.Top <= 0){
                 tribbleGreySpeed.Y *= (-1);
+                
             }
             //Cream's Code
             tribbleCreamRect.X += (int)tribbleCreamSpeed.X;
             tribbleCreamRect.Y += (int)tribbleCreamSpeed.Y;
             if (tribbleCreamRect.Right >= _graphics.PreferredBackBufferWidth || tribbleCreamRect.Left <= 0){
                 tribbleCreamSpeed.X *= -1;
+               
             }
             if (tribbleCreamRect.Bottom >= _graphics.PreferredBackBufferHeight || tribbleCreamRect.Top <= 0){
                 tribbleCreamSpeed.Y *= -1;
+                
             }
             //Orange's Code
             tribbleOrangeRect.X += (int)tribbleOrangeSpeed.X;
@@ -91,11 +98,11 @@ namespace Monogame_Animation_Assignment
             if (tribbleOrangeRect.Left >= _graphics.PreferredBackBufferWidth){
                 tribbleOrangeRect.X = -100;
                 tribbleOrangeSpeed.X = rand.Next(1,11);
-                this.Window.Title = $"Tribble Madness, Orange Current Speed: {tribbleOrangeSpeed.X}";
+                this.Window.Title = $"Tribble Madness, Orange Current Speed: {tribbleOrangeSpeed.X} ";
+                if (!tribbleCoo.IsDisposed)
+                    tribbleCoo.Play();
             }
-            if (tribbleOrangeRect.Bottom >= _graphics.PreferredBackBufferHeight || tribbleOrangeRect.Top <= 0){
-                tribbleOrangeSpeed.Y *= (-1);
-            }
+            
             //Brown's Code
             tribbleBrownRect.X += (int)tribbleBrownSpeed.X;
             tribbleBrownRect.Y += (int)tribbleBrownSpeed.Y;
@@ -103,6 +110,7 @@ namespace Monogame_Animation_Assignment
                 tribbleBrownSpeed.X *= (-1);
                 bgNum = rand.Next(0, 5);
                 rotation *= -1;
+
             }
             if (tribbleBrownRect.Bottom >= _graphics.PreferredBackBufferHeight || tribbleBrownRect.Top <= 0){
                 tribbleBrownSpeed.Y *= (-1);
