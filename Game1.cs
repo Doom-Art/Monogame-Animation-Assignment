@@ -3,6 +3,7 @@ using Microsoft.Xna.Framework.Audio;
 using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Input;
 using System;
+using System.Collections.Generic;
 
 namespace Monogame_Animation_Assignment
 {
@@ -10,18 +11,8 @@ namespace Monogame_Animation_Assignment
     {
         private GraphicsDeviceManager _graphics;
         private SpriteBatch _spriteBatch;
-        private Texture2D tribbleGreyTexture;
-        private Rectangle tribbleGreyRect;
-        private Vector2 tribbleGreySpeed;
-        private Texture2D tribbleOrangeTexture;
-        private Rectangle tribbleOrangeRect;
-        private Vector2 tribbleOrangeSpeed;
-        private Texture2D tribbleCreamTexture;
-        private Rectangle tribbleCreamRect;
-        private Vector2 tribbleCreamSpeed;
-        private Texture2D tribbleBrownTexture;
-        private Rectangle tribbleBrownRect;
-        private Vector2 tribbleBrownSpeed;
+        List<Texture2D> tribbleTextures;
+        List<Tribble> listTribbles;
         public static Random rand;
         private int bgNum;
         private float rotation;
@@ -55,26 +46,25 @@ namespace Monogame_Animation_Assignment
             _graphics.ApplyChanges();
             bgNum = 0;
             rotation = 1;
-            tribbleGreyRect = new Rectangle(rand.Next(0,700), rand.Next(0,500), 100, 100);
-            tribbleGreySpeed = new Vector2(2, 2);
-            tribbleOrangeRect = new Rectangle(rand.Next(0, 700), rand.Next(0, 500), 100, 100);
-            tribbleOrangeSpeed = new Vector2(2, 0);
-            tribbleCreamRect = new Rectangle(rand.Next(0, 700), rand.Next(0, 500), 100, 100);
-            tribbleCreamSpeed = new Vector2(0, -3);
-            tribbleBrownRect = new Rectangle(rand.Next(0, 700), rand.Next(0, 500), 100, 100);
-            tribbleBrownSpeed = new Vector2(rand.Next(2,10), rand.Next(2,10));
+            tribbleTextures = new List<Texture2D>();
+            listTribbles = new List<Tribble>();
             // TODO: Add your initialization logic here
-            this.Window.Title = "Tribble";
             base.Initialize();
+            for (int i = 0; i < 7; i++)
+            {
+                int size = rand.Next(80, 150);
+                listTribbles.Add(new Tribble(tribbleTextures[rand.Next(0,4)], new Rectangle(rand.Next(0, 700), rand.Next(0, 500), size, size), new Vector2(rand.Next(3,6), rand.Next(3, 6)), true));
+
+            }
         }
 
         protected override void LoadContent()
         {
             _spriteBatch = new SpriteBatch(GraphicsDevice);
-            tribbleGreyTexture = Content.Load<Texture2D>("tribbleGrey");
-            tribbleCreamTexture = Content.Load<Texture2D>("tribbleCream");
-            tribbleOrangeTexture = Content.Load<Texture2D>("tribbleOrange");
-            tribbleBrownTexture = Content.Load<Texture2D>("tribbleBrown");
+            tribbleTextures.Add(Content.Load<Texture2D>("tribbleGrey"));
+            tribbleTextures.Add(Content.Load<Texture2D>("tribbleCream"));
+            tribbleTextures.Add(Content.Load<Texture2D>("tribbleOrange"));
+            tribbleTextures.Add(Content.Load<Texture2D>("tribbleBrown"));
             tribbleCoo = Content.Load<SoundEffect>("tribble_coo");
             tribbleIntroTexture = Content.Load<Texture2D>("tribble_intro");
             title = Content.Load<SpriteFont>("titleFont");
@@ -95,20 +85,25 @@ namespace Monogame_Animation_Assignment
             else if (screen == Screen.TribbleYard)
             {
                 seconds = (float)gameTime.TotalGameTime.TotalSeconds - startTime;
-                this.Window.Title = $"Tribble Madness, Orange Current Speed: {tribbleOrangeSpeed.X}, Game Time: {seconds.ToString("0.0")}";
-                if (seconds >= 40)
+                this.Window.Title = $"Tribble Madness, Game Time: {seconds.ToString("00:0")}";
+                if (seconds >= 60)
                     screen = Screen.EndScreen;
-                //Grey's Code
-                tribbleGreyRect.X += (int)tribbleGreySpeed.X;
-                tribbleGreyRect.Y += (int)tribbleGreySpeed.Y;
-                if (tribbleGreyRect.Right >= _graphics.PreferredBackBufferWidth || tribbleGreyRect.Left <= 0){
-                    tribbleGreySpeed.X *= (-1);
 
+                //tribble class code
+                foreach (Tribble tribbleI in listTribbles)
+                {
+                    tribbleI.Move();
+                    if (tribbleI.Bounds.Right >= _graphics.PreferredBackBufferWidth || tribbleI.Bounds.Left <= 0){
+                        tribbleI.BounceLeftRight();
+                        tribbleI.SizeChange();
+                    }
+                    if (tribbleI.Bounds.Bottom >= _graphics.PreferredBackBufferHeight || tribbleI.Bounds.Top <= 0){
+                        tribbleI.BounceTopBottom();
+                        tribbleI.SizeChange();
+                    }
                 }
-                if (tribbleGreyRect.Bottom >= _graphics.PreferredBackBufferHeight || tribbleGreyRect.Top <= 0){
-                    tribbleGreySpeed.Y *= (-1);
-
-                }
+                
+                /*
                 //Cream's Code
                 tribbleCreamRect.X += (int)tribbleCreamSpeed.X;
                 tribbleCreamRect.Y += (int)tribbleCreamSpeed.Y;
@@ -143,6 +138,7 @@ namespace Monogame_Animation_Assignment
                     tribbleBrownSpeed.Y *= (-1);
                     bgNum = rand.Next(0, 5);
                 }
+                */
             }
             else if (screen == Screen.EndScreen){
                 if(mouseState.LeftButton == ButtonState.Pressed){
@@ -152,6 +148,7 @@ namespace Monogame_Animation_Assignment
             if (GamePad.GetState(PlayerIndex.One).Buttons.Back == ButtonState.Pressed || Keyboard.GetState().IsKeyDown(Keys.Escape))
                 Exit();
             
+
             // TODO: Add your update logic here
 
             base.Update(gameTime);
@@ -174,15 +171,15 @@ namespace Monogame_Animation_Assignment
             {
                 _spriteBatch.Draw(tribbleIntroTexture, new Rectangle(0, 0, 800, 500), Color.White);
                 _spriteBatch.DrawString(title, "Welcome to the world of tribbles. click the mouse button to move", new Vector2(5, 500), Color.Black);
-                _spriteBatch.DrawString(title, "onto the next screen. After the tribbles bounce for 40 seconds the", new Vector2(5, 525), Color.Black);
+                _spriteBatch.DrawString(title, "onto the next screen. After the tribbles bounce for 60 seconds the", new Vector2(5, 525), Color.Black);
                 _spriteBatch.DrawString(title, "program will move to the end screen.", new Vector2(5, 550), Color.Black);
             }
             else if (screen == Screen.TribbleYard)
             {
-                _spriteBatch.Draw(tribbleGreyTexture, tribbleGreyRect, Color.White);
-                _spriteBatch.Draw(tribbleCreamTexture, tribbleCreamRect, Color.White);
-                _spriteBatch.Draw(tribbleOrangeTexture, tribbleOrangeRect, Color.White);
-                _spriteBatch.Draw(tribbleBrownTexture, tribbleBrownRect, null, Color.White, rotation, new Vector2(tribbleBrownTexture.Width / 2f, tribbleBrownTexture.Height / 2f), SpriteEffects.None, 0f);
+                foreach (Tribble c in listTribbles)
+                {
+                    c.Draw(_spriteBatch);
+                }
             }
             else if(screen == Screen.EndScreen)
             {
