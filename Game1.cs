@@ -17,9 +17,11 @@ namespace Monogame_Animation_Assignment
         private int bgNum;
         private float rotation;
         SoundEffect tribbleCoo;
+        SoundEffectInstance tribbleCooInstance;
         MouseState mouseState;
         Texture2D tribbleIntroTexture;
         SpriteFont title;
+        int numTribbles;
         float seconds;
         float startTime;
         enum Screen
@@ -41,6 +43,7 @@ namespace Monogame_Animation_Assignment
         {
             screen = Screen.Intro;
             rand = new Random();
+            numTribbles = 0;
             _graphics.PreferredBackBufferWidth = (800);
             _graphics.PreferredBackBufferHeight = 600;
             _graphics.ApplyChanges();
@@ -50,11 +53,10 @@ namespace Monogame_Animation_Assignment
             listTribbles = new List<Tribble>();
             // TODO: Add your initialization logic here
             base.Initialize();
-            for (int i = 0; i < 7; i++)
+            for (int i = 0; i < 1; i++)
             {
-                int size = rand.Next(80, 150);
-                listTribbles.Add(new Tribble(tribbleTextures[rand.Next(0,4)], new Rectangle(rand.Next(0, 700), rand.Next(0, 500), size, size), new Vector2(rand.Next(3,6), rand.Next(3, 6)), true));
-
+                listTribbles.Add(new Tribble(tribbleTextures[rand.Next(0, 4)], _graphics));
+                numTribbles++;
             }
         }
 
@@ -66,6 +68,7 @@ namespace Monogame_Animation_Assignment
             tribbleTextures.Add(Content.Load<Texture2D>("tribbleOrange"));
             tribbleTextures.Add(Content.Load<Texture2D>("tribbleBrown"));
             tribbleCoo = Content.Load<SoundEffect>("tribble_coo");
+            tribbleCooInstance = tribbleCoo.CreateInstance();
             tribbleIntroTexture = Content.Load<Texture2D>("tribble_intro");
             title = Content.Load<SpriteFont>("titleFont");
             // TODO: use this.Content to load your game content here
@@ -90,55 +93,15 @@ namespace Monogame_Animation_Assignment
                     screen = Screen.EndScreen;
 
                 //tribble class code
-                foreach (Tribble tribbleI in listTribbles)
+                for (int i = 0; i < listTribbles.Count; i++)
                 {
-                    tribbleI.Move();
-                    if (tribbleI.Bounds.Right >= _graphics.PreferredBackBufferWidth || tribbleI.Bounds.Left <= 0){
-                        tribbleI.BounceLeftRight();
-                        tribbleI.SizeChange();
-                    }
-                    if (tribbleI.Bounds.Bottom >= _graphics.PreferredBackBufferHeight || tribbleI.Bounds.Top <= 0){
-                        tribbleI.BounceTopBottom();
-                        tribbleI.SizeChange();
+                    if (listTribbles[i].Move(_graphics) && numTribbles <100)
+                    {
+                        listTribbles.Add(new Tribble(tribbleTextures[rand.Next(0, 4)], _graphics));
+                        numTribbles++;
                     }
                 }
                 
-                /*
-                //Cream's Code
-                tribbleCreamRect.X += (int)tribbleCreamSpeed.X;
-                tribbleCreamRect.Y += (int)tribbleCreamSpeed.Y;
-                if (tribbleCreamRect.Right >= _graphics.PreferredBackBufferWidth || tribbleCreamRect.Left <= 0){
-                    tribbleCreamSpeed.X *= -1;
-
-                }
-                if (tribbleCreamRect.Bottom >= _graphics.PreferredBackBufferHeight || tribbleCreamRect.Top <= 0){
-                    tribbleCreamSpeed.Y *= -1;
-
-                }
-                //Orange's Code
-                tribbleOrangeRect.X += (int)tribbleOrangeSpeed.X;
-                tribbleOrangeRect.Y += (int)tribbleOrangeSpeed.Y;
-                if (tribbleOrangeRect.Left >= _graphics.PreferredBackBufferWidth){
-                    tribbleOrangeRect.X = -100;
-                    tribbleOrangeSpeed.X = rand.Next(1, 11);
-                    if (!tribbleCoo.IsDisposed)
-                        tribbleCoo.Play();
-                }
-
-                //Brown's Code
-                tribbleBrownRect.X += (int)tribbleBrownSpeed.X;
-                tribbleBrownRect.Y += (int)tribbleBrownSpeed.Y;
-                if (tribbleBrownRect.Right >= _graphics.PreferredBackBufferWidth || tribbleBrownRect.Left <= 0){
-                    tribbleBrownSpeed.X *= (-1);
-                    bgNum = rand.Next(0, 5);
-                    rotation *= -1;
-
-                }
-                if (tribbleBrownRect.Bottom >= _graphics.PreferredBackBufferHeight || tribbleBrownRect.Top <= 0){
-                    tribbleBrownSpeed.Y *= (-1);
-                    bgNum = rand.Next(0, 5);
-                }
-                */
             }
             else if (screen == Screen.EndScreen){
                 if(mouseState.LeftButton == ButtonState.Pressed){

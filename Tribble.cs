@@ -17,6 +17,7 @@ namespace Monogame_Animation_Assignment
         private Rectangle _rectangle;
         private Vector2 _speed;
         private bool _grow;
+        private static Random rand = new Random();
         public Tribble(Texture2D texture, Rectangle rect, Vector2 speed, bool grow)
         {
             _texture = texture;
@@ -24,6 +25,23 @@ namespace Monogame_Animation_Assignment
             _speed = speed;
             _grow = grow;
         }
+        public Tribble(Texture2D texture, GraphicsDeviceManager graphics)
+        {
+            _texture=texture;
+            int size = rand.Next(80, 150);
+            _rectangle = new Rectangle(rand.Next(0, graphics.PreferredBackBufferWidth - size), rand.Next(0, graphics.PreferredBackBufferHeight - size), size, size);
+            _speed = new Vector2(rand.Next(3, 6), rand.Next(3, 6));
+            _grow = Convert.ToBoolean(rand.Next(2)); 
+        }
+        /* ignore this
+        public Tribble(Texture2D texture, Rectangle parentTribble, Vector2 speed)
+        {
+            _texture = texture;
+            _speed = speed;
+            _rectangle = new Rectangle(parentTribble.X, parentTribble.Y, 80, 80);
+            _grow = Convert.ToBoolean(rand.Next(2));
+        }
+        */
         public Texture2D Texture
         {
             get { return _texture; }
@@ -36,6 +54,32 @@ namespace Monogame_Animation_Assignment
         public void Move()
         {
             _rectangle.Offset(_speed);
+        }
+        /*
+        public Tribble Multiply(Texture2D texture)
+        {
+            return new Tribble(texture, Bounds, _speed);
+        }
+        */
+        public bool Move(GraphicsDeviceManager graphics)
+        {
+            bool multiply = false;
+            Move();
+            if (Bounds.Right >= graphics.PreferredBackBufferWidth || Bounds.Left <= 0)
+            {
+                BounceLeftRight();
+                SizeChange();
+                if (Bounds.Height > 130)
+                    multiply = true;
+            }
+            if (Bounds.Bottom >= graphics.PreferredBackBufferHeight || Bounds.Top <= 0)
+            {
+                BounceTopBottom();
+                SizeChange();
+                if(Bounds.Height > 130)
+                    multiply = true;
+            }
+            return multiply;
         }
         public void BounceLeftRight()
         {
